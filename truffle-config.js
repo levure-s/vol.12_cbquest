@@ -2,8 +2,8 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
 
 //////////////////////////////////////
-const INFURA_PROJECT_ID = "";
-const mnemonic = "";
+const INFURA_PROJECT_ID = "d11c17162d934093bf8bafa878e42df7";
+const mnemonic = "payment festival describe bird jaguar cram artwork flower video window undo join";
 //////////////////////////////////////
 
 module.exports = {

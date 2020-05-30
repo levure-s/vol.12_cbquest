@@ -113,6 +113,15 @@ footer {
   background-size: 15px 15px;
 }
 
+div.scrollarea {
+  width: 300px;
+  height: 340px;
+  background-color: #bfcbc0;
+  overflow: scroll;
+}
+
+ul {list-style: none;}
+
 /* =======================================
 //   right side
 ========================================== */
@@ -145,14 +154,6 @@ footer {
 .info-text{
   margin: 0px;
 }
-
-div.scrollarea {
-    width: 880px;
-    height: 140px;
-    background-color: #bff5c4;
-    overflow: scroll;
-}
-ul {list-style: none;}
 
 .cbbox{
     width: 840px;

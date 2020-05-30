@@ -52,6 +52,7 @@ function init() {
                 });
             }
             mainLoop();
+            getHistory();
             setInterval(mainLoop, 2000);
         } else {
             console.log("exhibitorAddress err: " + err);
@@ -72,6 +73,9 @@ function getPhase() {
             switch(window.phase) {
                 case 0:
                     document.getElementById('phase_info').innerHTML = '<font size="+3">まだ出品されていません。</font>';
+                    document.getElementById("put_block").style.display = "block";
+                    document.getElementById("tokenId").disabled = false;
+                    document.getElementById("button_put").disabled = false;
                     break;
                 case 1:
                     document.getElementById('phase_info').innerHTML = '<font size="+3">オークション開催中！</font>';
@@ -381,6 +385,87 @@ function makeMessage(name, wei, isFlash) {
     return `${name}<br><span>${ether}</span>ether`;
 }
 
+function putUP(){
+    var tokenId = document.getElementById('tokenId').value;
+    window.token_contract.approve.sendTransaction(cba_address,tokenId,{from:web3.eth.accounts[0], gas:5500000}, (err, res) => {
+        if(!err) {
+        console.log("approve: OK");
+        } else {
+        console.log("approve err: " + err);
+        location.reload(true);
+        }
+    });
+    window.auction_contract.exhibitNFT.sendTransaction(cbt_address,tokenId,{from:web3.eth.accounts[0], gas:5500000}, (err, res) => {
+        if(!err) {
+        console.log("exhibitNFT: OK");
+        } else {
+        console.log("exhibitNFT err: " + err);
+        location.reload(true);
+        }
+    });
+    init();
+}
+
+async function getHistory(){
+    var blocknum = await BlockNumber();
+    // appendhistory(blocknum)
+    
+    var block = await Block(blocknum);
+    // for(var i = 0; i <= blocknum; i++) {
+           
+    // });
+        appendhistory(block);
+    //     if(block.transactions.length > 0) {
+    // //     //     var txReceipt = await web3.eth.getTransactionReceipt(block.transactions[0]);  
+    // //     //         if(txReceipt.logs.length > 0) {
+    // //     //             var _logText = txReceipt.logs[0].data;
+    // //     //             var x = web3.utils.hexToAscii(_logText);
+    // //     //             appendhistory("B:" + i + ", _logText:" + x);
+    // //     //         } else {
+    // //     //             appendhistory("B:" + i + " [no data]");
+    // //     //         };
+
+    //         for(var j = 0;j <= block.transactions.length;j++){
+    //             var txReceipt = await web3.eth.getTransactionReceipt(block.transactions[j]);  
+    //             if(txReceipt.logs.length > 0) {
+    //                 var _logText = txReceipt.logs[0].data;
+    //                 var x = web3.utils.hexToAscii("0x" + _logText);
+    //                 appendhistory("B:" + i + "tx" + j  + ", _logText:" + x);
+    //             } else {
+    //                 appendhistory("B:" + i + "tx" + j + " [no data]");
+    //             }
+    //         }
+    //     } else {
+    //         appendhistory("BLOCK:" + i + " [no tx]");
+    //     }
+    // }
+}
+
+async function BlockNumber(){
+    await web3.eth.getBlockNumber(function(error, result){ 
+        if (!error){
+            appendhistory("block number => " + result);
+            return result;
+        }    
+    });
+}
+
+async function Block(num){
+    await web3.eth.getBlock(parseInt(num,10),function(error, result){ 
+        if (!error){
+            appendhistory(result.number);
+            return result;
+        } 
+    });
+}
+
+function appendhistory(msg) {
+    var li = document.createElement("li");
+    li.innerHTML = msg;
+    document.getElementById("messages").appendChild(li);
+    document.getElementById("msgarea").scrollTop = document.getElementById("msgarea").scrollHeight;
+}
+
 </script>
 <nav class="navbar navbar-dark bg-top">
 <div><img src="https://gateway.ipfs.io/ipfs/QmWaqryR8FX5uJbQdMprL4Nj4Sx2YPC57zo1ZaXRYryDJa" width="48" height="48"/> CloseMountain (<span id="livenetwork"></span>)</div></nav>
@@ -391,6 +476,8 @@ function makeMessage(name, wei, isFlash) {
         <div class="col-md-4">
           <div id='list' class='m-1'>
             <div id='list-child-0' class='box pt01' title="bidders list">入札リスト</div>
+          </div>
+          <div class="scrollarea" id="msgarea"><ul id="messages"></ul>
           </div>
         </div>
         <div class="col-md-8">
@@ -413,6 +500,10 @@ function makeMessage(name, wei, isFlash) {
           <div id="bid_block" style="display:none"><br>
                 <input type="button" value=" 入札 " id="button_bid" disabled="true" onclick="bid();">　　
                 <input type="button" value=" etherを取り戻す " id="button_withdraw" disabled="true" onclick="withdrawEther();">　　
+          </div>
+          <div id="put_block" style="display:none"><br>
+                <input type="text"  id="tokenId" disabled="true">　　
+                <input type="button" value=" 出品する " id="button_put" disabled="true" onclick="putUP();">　　
           </div>
           <div id="ex_block" style="display:none"><br>
                 <input type="button" value="オークションを締め切る" id="button_ex_close" disabled="true"onclick="bidEnd();"><br>
