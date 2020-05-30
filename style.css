@@ -113,6 +113,15 @@ footer {
   background-size: 15px 15px;
 }
 
+div.scrollarea {
+  width: 300px;
+  height: 340px;
+  background-color: #bfcbc0;
+  overflow: scroll;
+}
+
+ul {list-style: none;}
+
 /* =======================================
 //   right side
 ========================================== */

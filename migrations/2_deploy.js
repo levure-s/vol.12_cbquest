@@ -25,14 +25,14 @@ module.exports = function(deployer, network, accounts) {
     }).then(() => {
         return obj_CBQuest.newPlayer("よしひこ", 3, 120, 68, 16, "QmaUtrQUiL9gAy5V529PF9ip57vvdL5ma1TjK9NnUaa3Cq");
     }).then(() => {
-        return obj_CBQuest.setEquipmentTokenId(3);
+        return obj_CBQuest.setEquipmentTokenId(0);
     }).then(() => {
         return deployer.deploy(CBAuction);
     }).then((instance) => {
         obj_CBAuction = instance;
-        return obj_CBQuestNFToken.approve(obj_CBAuction.address, 3);
-    }).then(() => {
-       return obj_CBAuction.exhibitNFT(obj_CBQuestNFToken.address, 3);
+    //     return obj_CBQuestNFToken.approve(obj_CBAuction.address, 3);
+    // }).then(() => {
+    //    return obj_CBAuction.exhibitNFT(obj_CBQuestNFToken.address, 3);
     }).then(() => {
         const outputfilename1 = "./deployed_info.js";
         var msg = "var deployed_network = '" + network + "';\r\n\r\n"; 
