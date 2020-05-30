@@ -406,19 +406,17 @@ function putUP(){
     init();
 }
 
-async function getHistory(){
-    var blocknum = await web3.eth.getBlockNumber(function(error, result){ 
-        if (!error){
-            appendhistory("block number => " + result);
-        }    
-    });
-    // appendhistory(blocknum)
-    
-    // for(var i = 0; i <= blocknum; i++) {
-        var block = await web3.eth.getBlock(parseInt(blocknum,10),function(error, result){ 
-        if (!error){
-            appendhistory(result.number);
-        }    
+function getHistory(){
+    var blocknum;
+    var block;
+    web3.eth.getBlockNumber().then((num)=>{
+        blocknum = num;
+        appendhistory("block number => " + blocknum);
+    }).then(()=>{
+        web3.eth.getBlock(parseInt(blocknum,10);
+    }).then((obj) =>{
+        block = obj;
+        appendhistory(block.number);
     });
         // appendhistory(block);
     //     if(block.transactions.length > 0) {
