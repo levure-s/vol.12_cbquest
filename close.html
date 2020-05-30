@@ -407,14 +407,20 @@ function putUP(){
 }
 
 async function getHistory(){
-    var blocknum = await BlockNumber();
+    var blocknum = await web3.eth.getBlockNumber(function(error, result){ 
+        if (!error){
+            appendhistory("block number => " + result);
+        }    
+    });
     // appendhistory(blocknum)
     
-    var block = await Block(blocknum);
     // for(var i = 0; i <= blocknum; i++) {
-           
-    // });
-        appendhistory(block);
+        var block = await web3.eth.getBlock(parseInt(blocknum,10),function(error, result){ 
+        if (!error){
+            appendhistory(result.number);
+        }    
+    });
+        // appendhistory(block);
     //     if(block.transactions.length > 0) {
     // //     //     var txReceipt = await web3.eth.getTransactionReceipt(block.transactions[0]);  
     // //     //         if(txReceipt.logs.length > 0) {
@@ -439,24 +445,6 @@ async function getHistory(){
     //         appendhistory("BLOCK:" + i + " [no tx]");
     //     }
     // }
-}
-
-async function BlockNumber(){
-    await web3.eth.getBlockNumber(function(error, result){ 
-        if (!error){
-            appendhistory("block number => " + result);
-            return result;
-        }    
-    });
-}
-
-async function Block(num){
-    await web3.eth.getBlock(parseInt(num,10),function(error, result){ 
-        if (!error){
-            appendhistory(result.number);
-            return result;
-        } 
-    });
 }
 
 function appendhistory(msg) {
