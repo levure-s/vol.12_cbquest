@@ -5,6 +5,8 @@
 <div><button id="d1_done">送金</button></div><p><span id="d1_notice2"></span></p></dialog>
 <script src="./deployed_info.js"></script><script>
 
+var historylog = [];
+
 window.onload = () => {
     if(typeof cbt_abi === 'undefined') {
         appendLog("[deployed_info.js]ファイルが見つかりません。確認して下さい。");
@@ -266,6 +268,7 @@ function execAddBid() {
     document.getElementById('d1_input_value').disabled = true;
     window.auction_contract.addBid.sendTransaction({from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) => {
         if(!err) {
+            historylog.push(res);
             document.getElementById('d1_notice2').innerHTML = '<br><font color="red">追加入札しました！完了までお待ちください。</font><br><progress></progress>';
             waitBidDone();
         } else {
@@ -407,16 +410,19 @@ function putUP(){
 }
 
 async function getHistory(){
-    var blocknum = await web3.eth.getBlockNumber(function(error1, result1){ 
-        if (!error1){
-            appendhistory("block number => " + result1);
-            var block = await web3.eth.getBlock(parseInt(result1,10),function(error2, result2){ 
-            if (!error2){
-                appendhistory(result2.number);
-            }    
-        });
-        }    
-    });
+    for(i=0; i<=historylog.length; i++){
+        appendhistory(historylog[i]);
+    }
+//     var blocknum = await web3.eth.getBlockNumber(function(error1, result1){ 
+//         if (!error1){
+//             appendhistory("block number => " + result1);
+//             var block = await web3.eth.getBlock(parseInt(result1,10),function(error2, result2){ 
+//             if (!error2){
+//                 appendhistory(result2.number);
+//             }    
+//         });
+//         }    
+//     });
     // appendhistory(blocknum)
     
     // for(var i = 0; i <= blocknum; i++) {
