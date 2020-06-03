@@ -5,7 +5,6 @@
 <div><button id="d1_done">送金</button></div><p><span id="d1_notice2"></span></p></dialog>
 <script src="./deployed_info.js"></script><script>
 
-var historylog = [];
 
 window.onload = () => {
     if(typeof cbt_abi === 'undefined') {
@@ -229,9 +228,16 @@ function execFirstBid() {
     document.getElementById('d1_input_value').disabled = true;
     window.auction_contract.firstBid.sendTransaction(regist_name, {from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) => {
         if(!err) {
-            document.getElementById('d1_notice2').innerHTML = '<br><font color="red">入札しました！完了までお待ちください。</font><br><progress></progress>';
-            window.bidName = regist_name;
-            waitBidDone();
+            window.auction_contract.setBidtxList.sendTransaction(res,{from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) =>{
+                if(!err){
+                    document.getElementById('d1_notice2').innerHTML = '<br><font color="red">入札しました！完了までお待ちください。</font><br><progress></progress>';
+                    window.bidName = regist_name;
+                    waitBidDone();
+                }else {
+                    console.log("setBidtxList err:" + err);
+                    location.reload(true);
+                }                
+            });  
         } else {
             console.log("firstBid err:" + err);
             location.reload(true);
@@ -268,9 +274,15 @@ function execAddBid() {
     document.getElementById('d1_input_value').disabled = true;
     window.auction_contract.addBid.sendTransaction({from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) => {
         if(!err) {
-            historylog.push(res);
-            document.getElementById('d1_notice2').innerHTML = '<br><font color="red">追加入札しました！完了までお待ちください。</font><br><progress></progress>';
-            waitBidDone();
+            window.auction_contract.setBidtxList.sendTransaction(res,{from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) =>{
+                if(!err){
+                    document.getElementById('d1_notice2').innerHTML = '<br><font color="red">追加入札しました！完了までお待ちください。</font><br><progress></progress>';
+                    waitBidDone();
+                }else {
+                    console.log("setBidtxList err:" + err);
+                    location.reload(true);
+                }                
+            });  
         } else {
             console.log("addBid err:" + err);
             location.reload(true);
@@ -409,49 +421,18 @@ function putUP(){
     init();
 }
 
-async function getHistory(){
-    for(i=0; i<=historylog.length; i++){
-        appendhistory(historylog[i]);
-    }
-//     var blocknum = await web3.eth.getBlockNumber(function(error1, result1){ 
-//         if (!error1){
-//             appendhistory("block number => " + result1);
-//             var block = await web3.eth.getBlock(parseInt(result1,10),function(error2, result2){ 
-//             if (!error2){
-//                 appendhistory(result2.number);
-//             }    
-//         });
-//         }    
-//     });
-    // appendhistory(blocknum)
-    
-    // for(var i = 0; i <= blocknum; i++) {
-        
-        // appendhistory(block);
-    //     if(block.transactions.length > 0) {
-    // //     //     var txReceipt = await web3.eth.getTransactionReceipt(block.transactions[0]);  
-    // //     //         if(txReceipt.logs.length > 0) {
-    // //     //             var _logText = txReceipt.logs[0].data;
-    // //     //             var x = web3.utils.hexToAscii(_logText);
-    // //     //             appendhistory("B:" + i + ", _logText:" + x);
-    // //     //         } else {
-    // //     //             appendhistory("B:" + i + " [no data]");
-    // //     //         };
-
-    //         for(var j = 0;j <= block.transactions.length;j++){
-    //             var txReceipt = await web3.eth.getTransactionReceipt(block.transactions[j]);  
-    //             if(txReceipt.logs.length > 0) {
-    //                 var _logText = txReceipt.logs[0].data;
-    //                 var x = web3.utils.hexToAscii("0x" + _logText);
-    //                 appendhistory("B:" + i + "tx" + j  + ", _logText:" + x);
-    //             } else {
-    //                 appendhistory("B:" + i + "tx" + j + " [no data]");
-    //             }
-    //         }
-    //     } else {
-    //         appendhistory("BLOCK:" + i + " [no tx]");
-    //     }
-    // }
+function getHistory(){
+    window.auction_contract.bidtxList.call((err, res) =>{
+        if(!err) {
+            appendhistory(res);
+        } else {
+            console.log("bidtxList err: " + err);
+            location.reload(true);
+        }
+        // for(i=0; i<= res.length; i++){
+            
+        // }
+    });
 }
 
 function appendhistory(msg) {

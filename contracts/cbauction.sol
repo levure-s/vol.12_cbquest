@@ -9,6 +9,7 @@ contract CBAuction {
     address payable public exhibitorAddress;
     uint256 public exhibitionTokenId;
     address[] biddersList;
+    address[] public bidtxList;
     mapping(address => string) bidderName;
     mapping(address => uint) bidderBalance;
     address public successfulBbidderAddress;
@@ -55,6 +56,10 @@ contract CBAuction {
         require(msg.value > 0);
         bidderBalance[msg.sender] += msg.value;
         emit BidLog(msg.sender, bidderName[msg.sender], msg.value);
+    }
+
+    function setBidtxList(address _addr) public {
+        bidtxList.push(_addr);
     }
 
     function getBiddersNum() public view returns (uint) {
