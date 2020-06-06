@@ -9,7 +9,7 @@ contract CBAuction {
     address payable public exhibitorAddress;
     uint256 public exhibitionTokenId;
     address[] biddersList;
-    address[] public bidtxList;
+    address[] bidtxList;
     mapping(address => string) bidderName;
     mapping(address => uint) bidderBalance;
     address public successfulBbidderAddress;
@@ -72,6 +72,14 @@ contract CBAuction {
 
     function getBidderInfoByAddr(address _addr) public view returns (string memory, uint) {
         return (bidderName[_addr], bidderBalance[_addr]);
+    }
+
+    function getBidtxNum() public view returns (uint) {
+        return bidtxList.length;
+    }
+
+    function getBidtxByIndex(uint _idx) public view returns (address) {
+        return bidtxList[_idx];
     }
 
     function closeAuction() public atPhase(phases.bid) {

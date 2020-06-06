@@ -228,16 +228,10 @@ function execFirstBid() {
     document.getElementById('d1_input_value').disabled = true;
     window.auction_contract.firstBid.sendTransaction(regist_name, {from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) => {
         if(!err) {
-            window.auction_contract.setBidtxList.sendTransaction(res,{from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) =>{
-                if(!err){
-                    document.getElementById('d1_notice2').innerHTML = '<br><font color="red">入札しました！完了までお待ちください。</font><br><progress></progress>';
-                    window.bidName = regist_name;
-                    waitBidDone();
-                }else {
-                    console.log("setBidtxList err:" + err);
-                    location.reload(true);
-                }                
-            });  
+            setBidtxList(res);
+            document.getElementById('d1_notice2').innerHTML = '<br><font color="red">入札しました！完了までお待ちください。</font><br><progress></progress>';
+            window.bidName = regist_name;
+            waitBidDone();                
         } else {
             console.log("firstBid err:" + err);
             location.reload(true);
@@ -274,20 +268,25 @@ function execAddBid() {
     document.getElementById('d1_input_value').disabled = true;
     window.auction_contract.addBid.sendTransaction({from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) => {
         if(!err) {
-            window.auction_contract.setBidtxList.sendTransaction(res,{from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) =>{
-                if(!err){
-                    document.getElementById('d1_notice2').innerHTML = '<br><font color="red">追加入札しました！完了までお待ちください。</font><br><progress></progress>';
-                    waitBidDone();
-                }else {
-                    console.log("setBidtxList err:" + err);
-                    location.reload(true);
-                }                
-            });  
+            setBidtxList(res);
+            document.getElementById('d1_notice2').innerHTML = '<br><font color="red">追加入札しました！完了までお待ちください。</font><br><progress></progress>';
+            waitBidDone();  
         } else {
             console.log("addBid err:" + err);
             location.reload(true);
         }
     });
+}
+
+function setBidtxList(tx){
+    window.auction_contract.setBidtxList.sendTransaction(tx,{from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) =>{
+        if(!err){
+            conloe.log("成功！ ")
+        }else {
+            console.log("setBidtxList err:" + err);
+            location.reload(true);
+        }                
+    });  
 }
 
 function waitBidDone() {
@@ -422,16 +421,27 @@ function putUP(){
 }
 
 function getHistory(){
-    window.auction_contract.bidtxList.call((err, res) =>{
+    window.auction_contract.getBidtxNum.call((err, res) => {
+        if(!err) {
+            window.txnum = parseInt(res);
+            window.txidx = 0;
+            gettx();
+        } else {
+            console.log("getBidtxNum err: " + err);
+        }
+    });
+}
+
+function gettx() {
+    if(window.txnum <= window.txidx) return;
+    window.auction_contract.getBidtxByIndex.call(window.txidx, (err, res) => {
         if(!err) {
             appendhistory(res);
+            window.txidx ++;
+            gettx();
         } else {
-            console.log("bidtxList err: " + err);
-            location.reload(true);
+            console.log("getBidtxByIndex err: " + err);
         }
-        // for(i=0; i<= res.length; i++){
-            
-        // }
     });
 }
 
