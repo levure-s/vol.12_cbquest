@@ -268,6 +268,7 @@ function execAddBid() {
     document.getElementById('d1_input_value').disabled = true;
     window.auction_contract.addBid.sendTransaction({from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) => {
         if(!err) {
+            console.log(res);
             setBidtxList(res);
             document.getElementById('d1_notice2').innerHTML = '<br><font color="red">追加入札しました！完了までお待ちください。</font><br><progress></progress>';
             waitBidDone();  
@@ -279,9 +280,9 @@ function execAddBid() {
 }
 
 function setBidtxList(tx){
-    window.auction_contract.setBidtxList.sendTransaction(tx,{from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) =>{
+    window.auction_contract.setBidtxList.sendTransaction(tx,{from:web3.eth.accounts[0], gas:5500000}, (err, res) =>{
         if(!err){
-            conloe.log("成功！ ")
+            console.log("成功！ ")
         }else {
             console.log("setBidtxList err:" + err);
             location.reload(true);
@@ -297,6 +298,7 @@ function waitBidDone() {
             if(parseInt(res[1]) > window.bidBalance) {
                 console.log("成功！ " + window.bidBalance + " => " + res[1]);
                 document.getElementById('d1_dialog').close();
+                init();
             } else {
                 console.log("mada");
                 setTimeout(waitBidDone, 1000);
@@ -436,9 +438,26 @@ function gettx() {
     if(window.txnum <= window.txidx) return;
     window.auction_contract.getBidtxByIndex.call(window.txidx, (err, res) => {
         if(!err) {
-            appendhistory(res);
-            window.txidx ++;
-            gettx();
+            web3.eth.getTransactionReceipt(res,(err, txReceipt) => {
+                if (!err) {
+                    var _sender = txReceipt.logs[0].data.slice(32,64);
+                    var _logText = txReceipt.logs[0].data.slice(129,194);
+                    // web3.utils.hexToAscii("0x" + _logText,(err,x) => {
+                    //     if (!err) {
+                    //         console.log("BLOCK:" + i + ", _sender:0x" + _sender + ", _logText:" + x);
+                    //         appendhistory(" _sender:0x" + _sender + ", _logText:" + x);
+                    //     } else {
+                    //         console.log(err);
+                    //     }
+                    // });
+                    appendhistory(" _sender:0x" + _sender + ", _logText:" +  _logText);
+                    window.txidx ++;
+                    gettx();
+                } else {
+                    console.log(err);
+                    console.log(res);
+                }
+            });    
         } else {
             console.log("getBidtxByIndex err: " + err);
         }
