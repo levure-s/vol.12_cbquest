@@ -53,7 +53,6 @@ function init() {
                 });
             }
             mainLoop();
-            getHistory();
             setInterval(mainLoop, 2000);
         } else {
             console.log("exhibitorAddress err: " + err);
@@ -228,7 +227,6 @@ function execFirstBid() {
     document.getElementById('d1_input_value').disabled = true;
     window.auction_contract.firstBid.sendTransaction(regist_name, {from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) => {
         if(!err) {
-            appendhistory(res);
             document.getElementById('d1_notice2').innerHTML = '<br><font color="red">入札しました！完了までお待ちください。</font><br><progress></progress>';
             window.bidName = regist_name;
             waitBidDone();
@@ -268,9 +266,8 @@ function execAddBid() {
     document.getElementById('d1_input_value').disabled = true;
     window.auction_contract.addBid.sendTransaction({from:web3.eth.accounts[0], value: wei, gas:5500000}, (err, res) => {
         if(!err) {
-            getHistory(res);
             document.getElementById('d1_notice2').innerHTML = '<br><font color="red">追加入札しました！完了までお待ちください。</font><br><progress></progress>';
-            waitBidDone();
+            waitBidDone(res);
         } else {
             console.log("addBid err:" + err);
             location.reload(true);
@@ -278,17 +275,18 @@ function execAddBid() {
     });
 }
 
-function waitBidDone() {
+function waitBidDone(tx) {
     console.log("waitBidDone - start");
     window.auction_contract.getBidderInfoByAddr.call(web3.eth.accounts[0], (err, res) => {
         if(!err) {
             console.log("res:" + res[0] + parseInt(res[1]));
             if(parseInt(res[1]) > window.bidBalance) {
                 console.log("成功！ " + window.bidBalance + " => " + res[1]);
+                getHistory(tx);
                 document.getElementById('d1_dialog').close();
             } else {
                 console.log("mada");
-                setTimeout(waitBidDone, 1000);
+                setTimeout(waitBidDone, 1000, tx);
             }
         } else {
             console.log("getBidderInfoByAddr err:" + err);
@@ -410,8 +408,22 @@ function putUP(){
 }
 
 function getHistory(tx){
-    web3.eth.getTransactionReceipt(tx).then((res) => {
-        appendhistroy(res);
+    web3.eth.getTransactionReceipt(tx,(err, txReceipt) => {
+        if (!err) {
+            var _sender = txReceipt.logs[0].data.slice(32,64);
+            var _logText = txReceipt.logs[0].data.slice(129,194);
+            // web3.utils.hexToAscii("0x" + _logText,(err,x) => {
+            //     if (!err) {
+            //         console.log("BLOCK:" + i + ", _sender:0x" + _sender + ", _logText:" + x);
+            //         appendhistroy(" _sender:0x" + _sender + ", _logText:" + x);
+            //     } else {
+            //         console.log(err);
+            //     }
+            // });
+            appendhistroy(" _sender:0x" + _sender + ", _logText:" +  _logText);
+        } else {
+            console.log(err);
+        }
     });
 }
 
