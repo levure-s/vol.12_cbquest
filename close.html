@@ -298,7 +298,7 @@ function waitBidDone() {
             if(parseInt(res[1]) > window.bidBalance) {
                 console.log("成功！ " + window.bidBalance + " => " + res[1]);
                 document.getElementById('d1_dialog').close();
-                init();
+                location.reload(true);
             } else {
                 console.log("mada");
                 setTimeout(waitBidDone, 1000);
@@ -440,19 +440,18 @@ function gettx() {
         if(!err) {
             web3.eth.getTransactionReceipt(res,(err, txReceipt) => {
                 if (!err) {
-                    var _sender = txReceipt.logs[0].data.slice(32,64);
+                    var _sender = txReceipt.logs[0].data.slice(26,66);
                     var _logText = txReceipt.logs[0].data.slice(129,194);
-                    // web3.utils.hexToAscii("0x" + _logText,(err,x) => {
-                    //     if (!err) {
-                    //         console.log("BLOCK:" + i + ", _sender:0x" + _sender + ", _logText:" + x);
-                    //         appendhistory(" _sender:0x" + _sender + ", _logText:" + x);
-                    //     } else {
-                    //         console.log(err);
-                    //     }
-                    // });
-                    appendhistory(" _sender:0x" + _sender + ", _logText:" +  _logText);
-                    window.txidx ++;
-                    gettx();
+                    var eth = parseInt(_logText,16) / 1000000000000000000;
+                    window.auction_contract.getBidderInfoByAddr.call("0x" + _sender, (err, res) => {
+                        if(!err) {
+                            appendhistory(" 入札者:" + res[0] + ", 金額: " +  eth +"ether");
+                            window.txidx ++;
+                            gettx();
+                        } else {
+                        console.log("getBidtxByIndex err: " + err);
+                        }
+                    });    
                 } else {
                     console.log(err);
                     console.log(res);
