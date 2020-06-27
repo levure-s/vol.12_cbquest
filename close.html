@@ -406,46 +406,67 @@ function putUP(){
     init();
 }
 
-async function getHistory(){
-    var blocknum = await web3.eth.getBlockNumber(function(error, result){ 
-        if (!error){
-            appendhistory("block number => " + result);
-        }    
-    });
-    // appendhistory(blocknum)
-    
-    // for(var i = 0; i <= blocknum; i++) {
-        var block = await web3.eth.getBlock(parseInt(blocknum,10),function(error, result){ 
-        if (!error){
-            appendhistory(result.number);
-        }    
-    });
-        // appendhistory(block);
-    //     if(block.transactions.length > 0) {
-    // //     //     var txReceipt = await web3.eth.getTransactionReceipt(block.transactions[0]);  
-    // //     //         if(txReceipt.logs.length > 0) {
-    // //     //             var _logText = txReceipt.logs[0].data;
-    // //     //             var x = web3.utils.hexToAscii(_logText);
-    // //     //             appendhistory("B:" + i + ", _logText:" + x);
-    // //     //         } else {
-    // //     //             appendhistory("B:" + i + " [no data]");
-    // //     //         };
-
-    //         for(var j = 0;j <= block.transactions.length;j++){
-    //             var txReceipt = await web3.eth.getTransactionReceipt(block.transactions[j]);  
-    //             if(txReceipt.logs.length > 0) {
-    //                 var _logText = txReceipt.logs[0].data;
-    //                 var x = web3.utils.hexToAscii("0x" + _logText);
-    //                 appendhistory("B:" + i + "tx" + j  + ", _logText:" + x);
-    //             } else {
-    //                 appendhistory("B:" + i + "tx" + j + " [no data]");
-    //             }
-    //         }
-    //     } else {
-    //         appendhistory("BLOCK:" + i + " [no tx]");
-    //     }
-    // }
+function getHistory(){
+    web3.eth.getBlockNumber((err, blocknumber) => {
+        if (!err) {
+            console.log(blocknumber);
+            for(var i = 0; i <= blocknumber; i++) {
+                web3.eth.getBlock(blocknumber,(err, block) => { 
+                    if (!err){
+                        if(block.transactions.length > 0) {
+                            for(var j = 0;j <= block.transactions.length;j++){
+                                web3.eth.getTransactionReceipt(block.transactions[j],(err, txReceipt) => { 
+                                    if (!err){
+                                        if(txReceipt.logs.length > 0) {
+                                            var _logText = txReceipt.logs[0].data;
+                                            var x = web3.utils.hexToAscii(_logText);
+                                            appendhistory("B:" + i + ", _logText:" + x);
+                                        }    
+                                    }else {
+                                        console.log(err);
+                                    }  
+                                });
+                            }
+                        } 
+                    } else {
+                        console.log(err);
+                    }    
+                });
+            }
+        } else {
+            console.log(err);
+        }
+    }); 
 }
+
+// function makehistory(blocknum){
+   
+//         appendhistory(block);
+//         if(block.transactions.length > 0) {
+//             var txReceipt = await web3.eth.getTransactionReceipt(block.transactions[0]);  
+//                 if(txReceipt.logs.length > 0) {
+//                     var _logText = txReceipt.logs[0].data;
+//                     var x = web3.utils.hexToAscii(_logText);
+//                     appendhistory("B:" + i + ", _logText:" + x);
+//                 } else {
+//                     appendhistory("B:" + i + " [no data]");
+//                 };
+
+            
+//                 var txReceipt = await web3.eth.getTransactionReceipt(block.transactions[j]);  
+//                 if(txReceipt.logs.length > 0) {
+//                     var _logText = txReceipt.logs[0].data;
+//                     var x = web3.utils.hexToAscii("0x" + _logText);
+//                     appendhistory("B:" + i + "tx" + j  + ", _logText:" + x);
+//                 } else {
+//                     appendhistory("B:" + i + "tx" + j + " [no data]");
+//                 }
+//             }
+//         } else {
+//             appendhistory("BLOCK:" + i + " [no tx]");
+//         }
+//     }
+// }
 
 function appendhistory(msg) {
     var li = document.createElement("li");
