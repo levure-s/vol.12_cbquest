@@ -114,6 +114,13 @@ footer {
 }
 
 div.scrollarea {
+  width: 880px;
+  height: 140px;
+  background-color: #bff5c4;
+  overflow: scroll;
+}
+
+.scrollarea2 {
   width: 300px;
   height: 340px;
   background-color: #bfcbc0;

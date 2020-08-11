@@ -83,6 +83,8 @@ function getPhase() {
                     document.getElementById("button_bid").disabled = false;
                     document.getElementById("button_ex_close").disabled = false;
                     getHighestBidder();
+                    getblocknumber();
+                    setInterval(getblocknumber, 2000);
                     break;
                 case 2:
                     document.getElementById('phase_info').innerHTML = '<font size="+3">落札者が決定しました！！</font>';
@@ -470,6 +472,27 @@ function appendhistory(msg) {
     document.getElementById("msgarea").scrollTop = document.getElementById("msgarea").scrollHeight;
 }
 
+function getblocknumber(){
+    web3.eth.getTransaction("0xf6eea36061fa9908d62dc89da798d6fd3b8c89ec577a5fb05524014a0c926a26",(err,res) => {
+        if(!err){
+            web3.eth.getBlockNumber((err,num) => {
+                if(!err){
+                    var x = num - res.blockNumber;
+                    appendhistory(x);
+                    if(x > 100){
+                        bidEnd();
+                    }
+                }else{
+                    console.log("getblockNumber BNerr:" + err)
+                }
+            });
+        }else{
+            console.log("getblockNumber txerr:" + err)
+        }
+    });
+    
+}
+
 </script>
 <nav class="navbar navbar-dark bg-top">
 <div><img src="https://gateway.ipfs.io/ipfs/QmWaqryR8FX5uJbQdMprL4Nj4Sx2YPC57zo1ZaXRYryDJa" width="48" height="48"/> CloseMountain (<span id="livenetwork"></span>)</div></nav>
@@ -481,7 +504,7 @@ function appendhistory(msg) {
           <div id='list' class='m-1'>
             <div id='list-child-0' class='box pt01' title="bidders list">入札リスト</div>
           </div>
-          <div class="scrollarea" id="msgarea"><ul id="messages"></ul>
+          <div class="scrollarea2" id="msgarea"><ul id="messages"></ul>
           </div>
         </div>
         <div class="col-md-8">
